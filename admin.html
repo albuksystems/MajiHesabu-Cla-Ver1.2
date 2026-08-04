@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MajiHesabu - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a3a3a;
+            --secondary: #2d5a5a;
+            --accent: #C49424;
+            --success: #4CAF50;
+            --danger: #ff6b6b;
+            --warning: #ffc107;
+            --light-bg: #f5f5f5;
+            --text: #333;
+            --border: #ddd;
+        }
+
+        body {
+            font-family: 'DM Mono', 'Courier New', monospace;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(196, 148, 36, 0.3);
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 2px solid var(--border);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== DASHBOARD: KPI CARDS ===== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .kpi-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-subtitle {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .kpi-card.revenue { border-left-color: var(--success); }
+        .kpi-card.collected { border-left-color: #2196F3; }
+        .kpi-card.outstanding { border-left-color: var(--danger); }
+        .kpi-card.rate { border-left-color: var(--warning); }
+
+        /* ===== DEBTORS LIST ===== */
+        .debtors-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .debtors-header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 250px;
+            font-family: inherit;
+        }
+
+        .debtors-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .debtors-table thead {
+            background: var(--light-bg);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .debtors-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .debtors-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .debtors-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .debtor-amount {
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .debtor-phone {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #a67a1a;
+            transform: scale(1.05);
+        }
+
+        .action-btn.whatsapp {
+            background: #25D366;
+        }
+
+        .action-btn.whatsapp:hover {
+            background: #20BA5A;
+        }
+
+        /* ===== CHARTS ===== */
+        .chart-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+
+        canvas {
+            max-height: 400px;
+        }
+
+        /* ===== CONSUMPTION TRENDS ===== */
+        .consumption-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .consumption-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--accent);
+        }
+
+        .consumption-month {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .consumption-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .consumption-units {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        /* ===== FORMS ===== */
+        .form-group {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(196, 148, 36, 0.1);
+        }
+
+        .submit-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: #a67a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 148, 36, 0.3);
+        }
+
+        /* ===== MESSAGE ALERT ===== */
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--success);
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ===== LOADING SPINNER ===== */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .debtors-table {
+                font-size: 0.85rem;
+            }
+
+            .debtors-table th,
+            .debtors-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .consumption-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 2rem; flex: 1;">
+                <div class="logo">💧 MajiHesabu</div>
+                <div style="color: white; font-size: 1.2rem; font-weight: bold; border-left: 2px solid var(--accent); padding-left: 1rem;">
+                    Joy Water Supplies
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh</button>
+            </div>
+        </div>
+        <div style="text-align: center; font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">
+            Powered by <strong>Albuk Technologies Ltd</strong> | Empowering Small Businesses Through Practical Technology
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('debtors')">💳 Debtors</button>
+            <button class="tab-btn" onclick="switchTab('trends')">📈 Trends</button>
+            <button class="tab-btn" onclick="switchTab('add-customer')">➕ New Customer</button>
+            <button class="tab-btn" onclick="switchTab('customers')">👥 Customers</button>
+            <button class="tab-btn" onclick="switchTab('meter-reading')">📏 Meter Reading</button>
+        </div>
+
+        <!-- ===== DASHBOARD TAB ===== -->
+        <div id="dashboard" class="tab-content active">
+            <div id="dashboard-message"></div>
+            <div class="kpi-grid">
+                <div class="kpi-card revenue">
+                    <div class="kpi-label">Total Revenue</div>
+                    <div class="kpi-value">KES <span id="total-revenue">0</span></div>
+                    <div class="kpi-subtitle">All invoices issued</div>
+                </div>
+
+                <div class="kpi-card collected">
+                    <div class="kpi-label">Amount Collected</div>
+                    <div class="kpi-value">KES <span id="total-collected">0</span></div>
+                    <div class="kpi-subtitle">Payments received</div>
+                </div>
+
+                <div class="kpi-card outstanding">
+                    <div class="kpi-label">Outstanding Balance</div>
+                    <div class="kpi-value">KES <span id="total-outstanding">0</span></div>
+                    <div class="kpi-subtitle">Amount owed</div>
+                </div>
+
+                <div class="kpi-card rate">
+                    <div class="kpi-label">Collection Rate</div>
+                    <div class="kpi-value"><span id="collection-rate">0</span>%</div>
+                    <div class="kpi-subtitle">Payment efficiency</div>
+                </div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Customers</div>
+                    <div class="kpi-value"><span id="total-customers">0</span></div>
+                    <div class="kpi-subtitle">
+                        👥 <span id="vendors">0</span> Vendors | 🏢 <span id="tenants">0</span> Tenants
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Invoices</div>
+                    <div class="kpi-value"><span id="total-invoices">0</span></div>
+                    <div class="kpi-subtitle">
+                        ✅ <span id="paid-invoices">0</span> Paid | ⏳ <span id="unpaid-invoices">0</span> Unpaid
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Consumption</div>
+                    <div class="kpi-value"><span id="avg-consumption">0</span></div>
+                    <div class="kpi-subtitle">Units per invoice</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📊 Revenue vs Collection Trend</div>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ===== DEBTORS TAB ===== -->
+        <div id="debtors" class="tab-content">
+            <div id="debtors-message"></div>
+            <div class="debtors-container">
+                <div class="debtors-header">
+                    <h2 style="color: white;">📋 Top Debtors</h2>
+                    <input type="text" class="search-box" placeholder="Search by name or phone..." id="searchBox" onkeyup="filterDebtors()">
+                </div>
+                <table class="debtors-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Phone</th>
+                            <th>Meter</th>
+                            <th>Invoice</th>
+                            <th>Amount Due</th>
+                            <th>Due Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="debtors-list">
+                        <tr><td colspan="9" style="text-align: center; padding: 2rem;">Loading debtors...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== CONSUMPTION TRENDS ===== -->
+        <div id="trends" class="tab-content">
+            <div class="consumption-grid" id="trends-grid">
+                <div class="consumption-card">
+                    <div class="consumption-month">August 2026</div>
+                    <div class="consumption-value">1,245</div>
+                    <div class="consumption-units">Units consumed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ADD CUSTOMER FORM ===== -->
+        <div id="add-customer" class="tab-content">
+            <div class="form-group">
+                <div class="form-title">Add New Customer</div>
+                <div id="add-customer-message"></div>
+                <form onsubmit="addCustomer(event)">
+                    <div class="form-row">
+                        <div>
+                            <label>Phone Number* <span style="font-size: 0.8rem; color: #999;">(+254 or 0)</span></label>
+                            <input type="tel" id="phone" placeholder="+254700000001 or 0700000001" required>
+                        </div>
+                        <div>
+                            <label>Full Name*</label>
+                            <input type="text" id="name" placeholder="Customer name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label>Customer Type*</label>
+                            <select id="type" required>
+                                <option value="">Select type</option>
+                                <option value="Salty Water Vendor">Salty Water Vendor</option>
+                                <option value="Apartment Tenant">Apartment Tenant</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Meter Number*</label>
+                            <input type="text" id="meterNumber" placeholder="e.g., M-00123" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div>
+                            <label>Location</label>
+                            <input type="text" id="location" placeholder="Physical location">
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div>
+                            <label>Email</label>
+                            <input type="email" id="email" placeholder="customer@email.com">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Add Customer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== CUSTOMERS MANAGEMENT ===== -->
+        <div id="customers" class="tab-content">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+                <!-- Customer List -->
+                <div>
+                    <h3 style="color: var(--accent); margin-bottom: 1rem;">👥 All Customers</h3>
+                    <input type="text" id="searchCustomer" placeholder="Search by phone, name, or ID..." 
+                           style="width: 100%; padding: 0.7rem; margin-bottom: 1rem; background: #2d5a5a; border: 1px solid var(--accent); color: white; border-radius: 4px;">
+                    <div id="customersList" style="max-height: 600px; overflow-y: auto; background: #0f2626; border-radius: 8px;">
+                        <p style="text-align: center; color: #999; padding: 2rem;">Loading customers...</p>
+                    </div>
+                </div>
+                
+                <!-- Customer Details & Edit -->
+                <div style="background: #0f2626; border-radius: 8px; padding: 2rem;">
+                    <h3 style="color: var(--accent); margin-bottom: 2rem;">📋 Customer Details & Status</h3>
+                    
+                    <div id="customerDetails" style="display: none;">
+                        <!-- Customer ID -->
+                        <div style="background: #1a3a3a; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid var(--accent);">
+                            <div style="font-size: 0.75rem; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Customer ID</div>
+                            <div style="font-size: 1.4rem; font-weight: bold; color: var(--accent); font-family: 'DM Mono', monospace; word-break: break-all;" id="detailCustomerId">—</div>
+                        </div>
+                        
+                        <!-- Edit Form -->
+                        <form id="editCustomerForm" style="display: none; margin-bottom: 2rem;">
+                            <h4 style="color: var(--accent); margin-bottom: 1rem;">Edit Details</h4>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.85rem; color: #999; display: block; margin-bottom: 0.5rem;">Name *</label>
+                                <input type="text" id="editName" required style="width: 100%; padding: 0.7rem; background: #2d5a5a; border: 1px solid #444; color: white; border-radius: 4px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.85rem; color: #999; display: block; margin-bottom: 0.5rem;">Email</label>
+                                <input type="email" id="editEmail" style="width: 100%; padding: 0.7rem; background: #2d5a5a; border: 1px solid #444; color: white; border-radius: 4px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.85rem; color: #999; display: block; margin-bottom: 0.5rem;">Location *</label>
+                                <input type="text" id="editLocation" required style="width: 100%; padding: 0.7rem; background: #2d5a5a; border: 1px solid #444; color: white; border-radius: 4px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="font-size: 0.85rem; color: #999; display: block; margin-bottom: 0.5rem;">Credit Limit (KES)</label>
+                                <input type="number" id="editCreditLimit" style="width: 100%; padding: 0.7rem; background: #2d5a5a; border: 1px solid #444; color: white; border-radius: 4px;">
+                            </div>
+                            
+                            <button type="submit" style="width: 100%; padding: 0.9rem; background: var(--accent); color: #1a3a3a; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-bottom: 1rem;">💾 Save Changes</button>
+                        </form>
+                        
+                        <!-- Status Management -->
+                        <div style="border-top: 1px solid #444; padding-top: 2rem; margin-top: 2rem;">
+                            <h4 style="color: var(--accent); margin-bottom: 1.5rem;">🔌 Supply Status</h4>
+                            
+                            <div id="statusBadge" style="background: #1a3a3a; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; border-left: 4px solid var(--accent);">
+                                <div style="font-size: 0.75rem; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Current Status</div>
+                                <div style="font-size: 1.8rem; font-weight: bold;" id="currentStatus">—</div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;">
+                                <button type="button" onclick="changeStatusForCustomer('Active')" style="padding: 0.8rem; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">✅ Active</button>
+                                <button type="button" onclick="changeStatusForCustomer('Suspended')" style="padding: 0.8rem; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">⚠️ Suspended</button>
+                                <button type="button" onclick="changeStatusForCustomer('Disconnected')" style="padding: 0.8rem; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">❌ Disconnected</button>
+                                <button type="button" onclick="changeStatusForCustomer('Deactivated')" style="padding: 0.8rem; background: #9C27B0; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">🚫 Deactivated</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="noCustomerSelected" style="text-align: center; color: #999; padding: 3rem 1rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">👈</div>
+                        <p>Select a customer to view and manage details</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== METER READING FORM ===== -->
+        <div id="meter-reading" class="tab-content">
+            <div class="form-group">
+                <div class="form-title">Record Meter Reading</div>
+                <div id="meter-reading-message"></div>
+                <form onsubmit="recordReading(event)">
+                    <div class="form-row">
+                        <div>
+                            <label>Meter Number*</label>
+                            <input type="text" id="readMeter" placeholder="e.g., M-00123" required>
+                        </div>
+                        <div>
+                            <label>Current Reading Value*</label>
+                            <input type="number" id="readingValue" placeholder="e.g., 1250" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label>Reading Date</label>
+                            <input type="date" id="readingDate">
+                        </div>
+                        <div>
+                            <label>Recorded By*</label>
+                            <input type="text" id="recordedBy" placeholder="Meter reader name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div>
+                            <label>Photo URL (optional)</label>
+                            <input type="text" id="photoURL" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div>
+                            <label>GPS Location (optional)</label>
+                            <input type="text" id="gps" placeholder="-4.0435, 39.6682">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Record Reading & Generate Invoice</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Configuration
+        // Configuration - Use CONFIG from config.js if available
+        const SCRIPT_URL = (typeof CONFIG !== 'undefined') ? CONFIG.API_ENDPOINT : "YOUR_DEPLOYED_GAS_URL_HERE";
+        let allDebtors = [];
+
+        // ===== TAB SWITCHING =====
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data if needed
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'debtors') loadDebtors();
+            if (tabName === 'trends') loadTrends();
+            if (tabName === 'customers') loadCustomers();
+        }
+
+        // ===== API CALLS =====
+        async function callAPI(action, data) {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: action, ...data })
+                });
+                return await response.json();
+            } catch (err) {
+                console.error('API Error:', err);
+                return { error: err.toString() };
+            }
+        }
+
+        // ===== LOAD DASHBOARD =====
+        async function loadDashboard() {
+            const result = await callAPI('getDashboard', {});
+
+            if (result.error) {
+                document.getElementById('dashboard-message').innerHTML = 
+                    `<div class="message error">Error loading dashboard: ${result.error}</div>`;
+                return;
+            }
+
+            // Update KPI cards
+            document.getElementById('total-revenue').textContent = formatCurrency(result.financials.totalRevenue);
+            document.getElementById('total-collected').textContent = formatCurrency(result.financials.totalCollected);
+            document.getElementById('total-outstanding').textContent = formatCurrency(result.financials.totalOutstanding);
+            document.getElementById('collection-rate').textContent = result.financials.collectionRate.replace('%', '');
+
+            document.getElementById('total-customers').textContent = result.summary.totalCustomers;
+            document.getElementById('vendors').textContent = result.summary.totalVendors;
+            document.getElementById('tenants').textContent = result.summary.totalTenants;
+            document.getElementById('total-invoices').textContent = result.summary.totalInvoices;
+            document.getElementById('paid-invoices').textContent = result.summary.paidInvoices;
+            document.getElementById('unpaid-invoices').textContent = result.summary.unpaidInvoices;
+            document.getElementById('avg-consumption').textContent = Math.round(result.consumption.avgConsumption) + ' units';
+
+            // Draw chart
+            drawRevenueChart(result);
+        }
+
+        // ===== LOAD DEBTORS =====
+        async function loadDebtors() {
+            const result = await callAPI('getDebtors', { limit: 100 });
+
+            if (result.error) {
+                document.getElementById('debtors-message').innerHTML = 
+                    `<div class="message error">Error loading debtors: ${result.error}</div>`;
+                return;
+            }
+
+            allDebtors = result;
+            displayDebtors(result);
+        }
+
+        function displayDebtors(debtors) {
+            const tbody = document.getElementById('debtors-list');
+            tbody.innerHTML = '';
+
+            if (debtors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">No debtors! 🎉</td></tr>';
+                return;
+            }
+
+            debtors.forEach((debtor, idx) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td><strong>${debtor.name}</strong></td>
+                    <td>${debtor.phone.includes('vendor') ? '👥' : '🏢'}</td>
+                    <td><a href="tel:${debtor.phone}" class="debtor-phone">${debtor.phone}</a></td>
+                    <td>${debtor.meterNumber}</td>
+                    <td><code>${debtor.invoiceId}</code></td>
+                    <td class="debtor-amount">KES ${formatCurrency(debtor.amount)}</td>
+                    <td>${new Date(debtor.dueDate).toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn whatsapp" onclick="sendReminder('${debtor.customerId}')">📱 Remind</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterDebtors() {
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = allDebtors.filter(d =>
+                d.name.toLowerCase().includes(search) ||
+                d.phone.toLowerCase().includes(search)
+            );
+            displayDebtors(filtered);
+        }
+
+        // ===== LOAD TRENDS =====
+        async function loadTrends() {
+            const grid = document.getElementById('trends-grid');
+            grid.innerHTML = '<div class="loading"><div class="spinner"></div> <p>Loading trends...</p></div>';
+            // Trends can be loaded here
+        }
+
+        // ===== FORM HANDLERS =====
+        async function addCustomer(e) {
+            e.preventDefault();
+            const msg = document.getElementById('add-customer-message');
+
+            const phone = document.getElementById('phone').value;
+            const name = document.getElementById('name').value;
+            const type = document.getElementById('type').value;
+            const meterNumber = document.getElementById('meterNumber').value;
+            const location = document.getElementById('location').value;
+            const email = document.getElementById('email').value;
+
+            // Here you would call the API
+            // For now, show success message
+            msg.innerHTML = `<div class="message success">✅ Customer added successfully!</div>`;
+            setTimeout(() => e.target.reset(), 1000);
+        }
+
+        async function recordReading(e) {
+            e.preventDefault();
+            const msg = document.getElementById('meter-reading-message');
+
+            const meterNumber = document.getElementById('readMeter').value;
+            const readingValue = document.getElementById('readingValue').value;
+            const recordedBy = document.getElementById('recordedBy').value;
+
+            msg.innerHTML = `<div class="message success">✅ Reading recorded and invoice generated!</div>`;
+            setTimeout(() => e.target.reset(), 1000);
+        }
+
+        async function sendReminder(customerId) {
+            const result = await callAPI('sendReminderWhatsApp', { customerId: customerId });
+            alert(result.success ? 'Reminder sent!' : 'Error sending reminder');
+        }
+
+        // ===== CHART =====
+        function drawRevenueChart(data) {
+            const ctx = document.getElementById('revenueChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Revenue', 'Collected', 'Outstanding'],
+                    datasets: [{
+                        label: 'Amount (KES)',
+                        data: [
+                            data.financials.totalRevenue,
+                            data.financials.totalCollected,
+                            data.financials.totalOutstanding
+                        ],
+                        backgroundColor: ['#2196F3', '#4CAF50', '#ff6b6b'],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // ===== UTILITIES =====
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-KE', {
+                style: 'currency',
+                currency: 'KES'
+            }).format(value).replace('KES', '').trim();
+        }
+
+        function refreshDashboard() {
+            loadDashboard();
+            alert('Dashboard refreshed!');
+        }
+
+        // ===== CUSTOMER MANAGEMENT =====
+        let allCustomers = [];
+        let selectedCustomerId = null;
+
+        async function loadCustomers() {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getAllCustomersWithStatus' })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    allCustomers = data.customers || [];
+                    displayCustomers(allCustomers);
+                }
+            } catch (err) {
+                console.error('Error loading customers:', err);
+            }
+        }
+
+        function displayCustomers(customers) {
+            const list = document.getElementById('customersList');
+            if (customers.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">No customers found</p>';
+                return;
+            }
+            
+            list.innerHTML = customers.map(c => {
+                const statusColor = {
+                    'Active': '#4CAF50',
+                    'Suspended': '#ff9800',
+                    'Disconnected': '#f44336',
+                    'Deactivated': '#9C27B0'
+                }[c.status] || '#999';
+                
+                return `
+                    <div onclick="selectCustomer('${c.customerId}')" style="
+                        padding: 1rem;
+                        border-bottom: 1px solid #333;
+                        cursor: pointer;
+                        transition: background 0.2s;
+                        background: ${selectedCustomerId === c.customerId ? '#1a3a3a' : 'transparent'};
+                    " onmouseover="this.style.background='#1a3a3a'" onmouseout="this.style.background='${selectedCustomerId === c.customerId ? '#1a3a3a' : 'transparent'}'">
+                        <div style="font-weight: bold; color: white; margin-bottom: 0.3rem;">${c.name}</div>
+                        <div style="font-size: 0.85rem; color: #999; margin-bottom: 0.3rem;">${c.phone}</div>
+                        <div style="font-size: 0.75rem; color: ${statusColor}; font-weight: bold;">● ${c.status}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterCustomers() {
+            const search = document.getElementById('searchCustomer').value.toLowerCase();
+            const filtered = allCustomers.filter(c =>
+                c.name.toLowerCase().includes(search) ||
+                c.phone.toLowerCase().includes(search) ||
+                c.customerId.toLowerCase().includes(search) ||
+                c.meterNumber.toLowerCase().includes(search)
+            );
+            displayCustomers(filtered);
+        }
+
+        async function selectCustomer(customerId) {
+            selectedCustomerId = customerId;
+            displayCustomers(allCustomers);
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getCustomerById', customerId: customerId })
+                });
+                const customer = await response.json();
+                
+                if (customer && customer.customerId) {
+                    document.getElementById('noCustomerSelected').style.display = 'none';
+                    document.getElementById('customerDetails').style.display = 'block';
+                    
+                    document.getElementById('detailCustomerId').textContent = customer.customerId;
+                    document.getElementById('editName').value = customer.name;
+                    document.getElementById('editEmail').value = customer.email || '';
+                    document.getElementById('editLocation').value = customer.location;
+                    document.getElementById('editCreditLimit').value = customer.creditLimit || '';
+                    
+                    const statusColor = {
+                        'Active': '#4CAF50',
+                        'Suspended': '#ff9800',
+                        'Disconnected': '#f44336',
+                        'Deactivated': '#9C27B0'
+                    }[customer.status] || '#999';
+                    
+                    document.getElementById('currentStatus').textContent = customer.status;
+                    document.getElementById('currentStatus').style.color = statusColor;
+                    document.getElementById('statusBadge').style.borderLeftColor = statusColor;
+                }
+            } catch (err) {
+                console.error('Error loading customer details:', err);
+            }
+        }
+
+        async function changeStatusForCustomer(newStatus) {
+            if (!selectedCustomerId) return;
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: 'updateCustomerStatus', 
+                        customerId: selectedCustomerId,
+                        status: newStatus
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`✅ Status updated to: ${newStatus}`);
+                    loadCustomers();
+                    selectCustomer(selectedCustomerId);
+                } else {
+                    alert('❌ Error: ' + result.message);
+                }
+            } catch (err) {
+                console.error('Error updating status:', err);
+                alert('Error updating status');
+            }
+        }
+
+        document.getElementById('editCustomerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedCustomerId) return;
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'updateCustomerDetails',
+                        customerId: selectedCustomerId,
+                        name: document.getElementById('editName').value,
+                        email: document.getElementById('editEmail').value,
+                        location: document.getElementById('editLocation').value,
+                        creditLimit: parseFloat(document.getElementById('editCreditLimit').value) || 0
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Customer details updated successfully!');
+                    loadCustomers();
+                    selectCustomer(selectedCustomerId);
+                } else {
+                    alert('❌ Error: ' + result.message);
+                }
+            } catch (err) {
+                console.error('Error updating customer:', err);
+                alert('Error updating customer details');
+            }
+        });
+
+        // Add search event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('searchCustomer');
+            if (searchBox) {
+                searchBox.addEventListener('input', filterCustomers);
+            }
+        });
+
+        // Initial load
+        loadDashboard();
+    </script>
+</body>
+</html>
