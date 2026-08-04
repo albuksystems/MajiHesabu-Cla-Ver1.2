@@ -14,7 +14,7 @@
 if (typeof CONFIG === 'undefined') {
   const CONFIG = {
   // ✅ Your deployed Apps Script URL - REPLACE SCRIPT_URL with this
-  API_ENDPOINT: "https://script.google.com/macros/s/AKfycbwBOlgGyA_TG9_BufJiplH_7SAYNGwoONpj8e1Mt6-rPMbjj0IISLI02eIh0wp5tf5wZg/exec",
+  API_ENDPOINT: "https://script.google.com/macros/s/AKfycbx35FMmlgVgXaQfRAAWARLXG521iqNlANT1j0wl9n88p7ihXkWBLtMRJpZKgy4dL4wx5g/exec",
 
   // ============================================================================
   // COMPANY INFORMATION
