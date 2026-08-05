@@ -727,9 +727,18 @@
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
                     body: JSON.stringify({ action: 'authenticate', phone: phone, meterNumber: meterNumber })
                 });
-                const result = await response.json();
+                const text = await response.text();
+                
+                if (text.trim().startsWith('<')) {
+                    throw new Error("Server error - returned HTML");
+                }
+                
+                const result = JSON.parse(text);
 
                 if (result.authenticated) {
                     currentCustomer = result;
@@ -791,9 +800,18 @@
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
                     body: JSON.stringify({ action: 'getInvoiceHistory', customerId: currentCustomer.customerId, months: 6 })
                 });
-                const invoices = await response.json();
+                const text = await response.text();
+                
+                if (text.trim().startsWith('<')) {
+                    throw new Error("Server error - returned HTML");
+                }
+                
+                const invoices = JSON.parse(text).invoices || [];
 
                 const tbody = document.getElementById('invoicesList');
                 tbody.innerHTML = '';
@@ -838,9 +856,18 @@
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
                     body: JSON.stringify({ action: 'getPaymentHistory', customerId: currentCustomer.customerId })
                 });
-                const payments = await response.json();
+                const text = await response.text();
+                
+                if (text.trim().startsWith('<')) {
+                    throw new Error("Server error - returned HTML");
+                }
+                
+                const payments = JSON.parse(text).payments || [];
 
                 const tbody = document.getElementById('paymentsList');
                 tbody.innerHTML = '';
@@ -877,9 +904,18 @@
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
                     body: JSON.stringify({ action: 'getConsumptionTrends', customerId: currentCustomer.customerId, months: 6 })
                 });
-                const trends = await response.json();
+                const text = await response.text();
+                
+                if (text.trim().startsWith('<')) {
+                    throw new Error("Server error - returned HTML");
+                }
+                
+                const trends = JSON.parse(text).trends || [];
 
                 if (trends.length === 0) {
                     document.getElementById('trendsContent').innerHTML = '<div class="empty-message">No consumption data available</div>';
